@@ -6,6 +6,7 @@ import SearchBar from './components/SearchBar/SearchBar';
 import Loader from './components/Loader/Loader';
 import ErrorMessage from './components/ErrorMessage/ErrorMessage';
 import LoadMoreBtn from './components/LoadMoreBtn/LoadMoreBtn';
+import ImageModal from './components/ImageModal/ImageModal';
 
 function App() {
   const [articles, setArticles] = useState([]);
@@ -14,6 +15,7 @@ function App() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
   useEffect(() => {
     if (query === '') return;
@@ -48,6 +50,14 @@ function App() {
     setPage(1);
   };
 
+  const openModal = () => {
+    setIsOpenModal(true);
+  };
+
+  const closeModal = () => {
+    setIsOpenModal(false);
+  };
+
   return (
     <>
       <SearchBar onSubmit={handleSubmitQuery} />
@@ -56,8 +66,9 @@ function App() {
       {articles.length > 0 && !isLoading && !error && (
         <LoadMoreBtn onLoadMore={handleLoadMore} isActive={isActive} />
       )}
-      <ImageGallery articles={articles} />
+      <ImageGallery articles={articles} onModal={openModal} />
       {error && <ErrorMessage />}
+      <ImageModal isOpenModal={isOpenModal} onCloseModal={closeModal} />
     </>
   );
 }
