@@ -1,5 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { useToggle } from './hooks/useToggle';
 import { fetchImages } from './services/api';
+import { Toaster } from 'react-hot-toast';
 import './App.css';
 import ImageGallery from './components/ImageGallery/ImageGallery';
 import SearchBar from './components/SearchBar/SearchBar';
@@ -11,11 +13,18 @@ import ImageModal from './components/ImageModal/ImageModal';
 function App() {
   const [articles, setArticles] = useState([]);
   const [query, setQuery] = useState('');
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [isOpenModal, setIsOpenModal] = useState(false);
+
+  const { isOpenModal, openModal, closeModal } = useToggle();
+  const [modalImage, setModalImage] = useState('');
+  const [alt, setAlt] = useState('');
+
+  const ref = useRef();
 
   useEffect(() => {
     if (query === '') return;
@@ -44,32 +53,51 @@ function App() {
     () => (totalPages === page ? true : false),
     [totalPages, page]
   );
+
+  useEffect(() => {
+    if (page === 1) return;
+    ref.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'start',
+    });
+  }, [page, articles]);
+
   const handleSubmitQuery = query => {
     setArticles([]);
     setQuery(query);
     setPage(1);
   };
 
-  const openModal = () => {
-    setIsOpenModal(true);
-  };
-
-  const closeModal = () => {
-    setIsOpenModal(false);
+  const modalInfo = (src, alt) => {
+    setModalImage(src);
+    setAlt(alt);
   };
 
   return (
-    <>
+    <div ref={ref}>
       <SearchBar onSubmit={handleSubmitQuery} />
       {isLoading && <Loader />}
 
       {articles.length > 0 && !isLoading && !error && (
         <LoadMoreBtn onLoadMore={handleLoadMore} isActive={isActive} />
       )}
-      <ImageGallery articles={articles} onModal={openModal} />
+
+      <ImageGallery
+        articles={articles}
+        onModal={openModal}
+        modalInfo={modalInfo}
+      />
+
       {error && <ErrorMessage />}
-      <ImageModal isOpenModal={isOpenModal} onCloseModal={closeModal} />
-    </>
+      <ImageModal
+        isOpenModal={isOpenModal}
+        onCloseModal={closeModal}
+        image={modalImage}
+        alt={alt}
+      />
+      <Toaster position="top-right" reverseOrder={false} />
+    </div>
   );
 }
 

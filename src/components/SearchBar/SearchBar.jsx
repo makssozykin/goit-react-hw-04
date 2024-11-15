@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { IoSearch } from 'react-icons/io5';
+import s from './SearchBar.module.css';
 
 const SearchBar = ({ onSubmit }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,9 +21,10 @@ const SearchBar = ({ onSubmit }) => {
     setSearchQuery(event.target.value);
   };
   return (
-    <header>
-      <form onSubmit={handleSubmit}>
+    <header className={s.header}>
+      <form onSubmit={handleSubmit} className={s['search-form']}>
         <input
+          className={s['search-input']}
           type="text"
           autoComplete="off"
           autoFocus
@@ -30,7 +33,9 @@ const SearchBar = ({ onSubmit }) => {
           value={searchQuery}
           onChange={handleInputChange}
         />
-        <button type="submit">Search</button>
+        <button className={s['search-btn']} type="submit">
+          <IoSearch />
+        </button>
       </form>
     </header>
   );
